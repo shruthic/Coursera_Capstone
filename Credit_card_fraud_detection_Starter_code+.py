@@ -36,7 +36,7 @@ from scipy import interp
 import itertools
 
 
-# ## Exploratory data analysis
+# ## Data Loading and Understanding
 
 # In[8]:
 
@@ -68,7 +68,14 @@ df.describe() #Describing the distribution of the each column
 # Here we will observe the distribution of our classes
 
 # In[12]:
-
+# ANOVA Test
+features = df.drop(['Class'], axis=1)
+label = df['Class']
+from sklearn.feature_selection import f_classif
+fval, pval = f_classif(features, label)
+for i in range(len(pval)):
+    print(features.columns[i], pval[i].round(4))
+# Correlation and ANOVA test shows that all the features are important and thus no feature can be dropped.
 
 classes=df['Class'].value_counts()
 normal_share=classes[0]/df['Class'].count()*100
@@ -224,7 +231,38 @@ X = df.drop(columns=['Class'])
 
 
 # In[27]:
+print(y.describe())
+print(X.describe())
+print(y.shape)
+print(X.shape)
 
+### Plotting the distribution of a variable
+num_cols = list(X.dtypes[X.dtypes != 'object'].index)
+plt.figure(figsize=(30, 70))
+i = 0
+for col in num_cols:
+    plt.subplot(8,4,i+1)
+    sns.distplot(X[col])
+    plt.xlabel(col)
+    i = i + 1
+plt.show()
+
+# Since there is skewness present in the distribution use:
+# Power Transformer package present in the preprocessing library provided by sklearn to make distribution more gaussian : to fit & transform the train & test data
+pt = preprocessing.PowerTransformer(copy=False)
+X = pt.fit_transform(X)
+y = pt.fit_transform(y.to_frame())
+
+### Plotting the distribution of a variable to re-check
+num_cols = list(X.dtypes[X.dtypes != 'object'].index)
+plt.figure(figsize=(30, 70))
+i = 0
+for col in num_cols:
+    plt.subplot(8,4,i+1)
+    sns.distplot(X[col])
+    plt.xlabel(col)
+    i = i + 1
+plt.show()
 
 X.head()
 
